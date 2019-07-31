@@ -1,7 +1,7 @@
-# TM1637
-# Raspberry Pi Python 3 TM1637
+# TM1637 + OSL40391
+# Raspberry Pi Python 3 TM1637 + OSL40391 Extension
 
-A Python 3 port from MicroPython library for the quad 7-segment LED display modules based on the TM1637 LED driver, implemented on Raspberry Pi.
+A Python 3 port from MicroPython library for the quad 7-segment LED display modules based on the TM1637 LED driver, implemented on Raspberry Pi. This fork includes an extension for OptoSupply's OSL40391 4x7 Segment Display.
 
 For example, the [OptoSupply - 4 Digit Display](http://akizukidenshi.com/catalog/g/gI-09971/)
 
@@ -14,7 +14,7 @@ For example, the [OptoSupply - 4 Digit Display](http://akizukidenshi.com/catalog
 ```python
 import tm1637
 # tm = tm1637.TM1637(clk=5, dio=4)
-tm = tm1637.TM1637_OSL40391(clk=5, dio=4)
+tm = tm1637.TM1637_OSL40391(clk=24, dio=23)
 
 # all LEDS on "88:88"
 tm.write([127, 255, 127, 127])
