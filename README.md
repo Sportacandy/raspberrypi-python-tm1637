@@ -7,10 +7,6 @@ For example, the [OptoSupply - 4 Digit Display](http://akizukidenshi.com/catalog
 
 ![demo](docs/raspberry_tm1637+osl40391.gif)
 
-For another example, the [Grove - 4 Digit Display module](http://wiki.seeed.cc/Grove-4-Digit_Display/)
-
-![demo](docs/raspberry_tm1637+osl40391.gif)
-
 ## Examples
 
 **Basic usage**
