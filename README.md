@@ -196,7 +196,8 @@ GPIO23        | DIO
 GND           | GND
  :            |  :
  :            |  :
-   (see docs/clock-schematic.png for more details.)
+ 
+See [docs/clock-schematic.png](docs/clock-schematic.png) for more details.
 
 ## Links
 
