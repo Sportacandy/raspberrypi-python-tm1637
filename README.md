@@ -182,9 +182,14 @@ scan_key()
 
 ## Parts
 
-* [OptoSupply 4 Digit Display](http://www.optosupply.com/uppic/2016823196951.pdf) $2 USD
-* [Grove 4 Digit Display](https://www.seeedstudio.com/grove-4digital-display-p-1198.html) $5.90 USD
-* [Grove Male Jumper Cable](https://www.seeedstudio.com/Grove-4-pin-Male-Jumper-to-Grove-4-pin-Conversion-Cable-%285-PCs-per-Pack%29-p-1565.html) $2.90 USD
+* [OptoSupply 4 Digit Display](http://www.optosupply.com/uppic/2016823196951.pdf) $2 USD x 1
+* [HiLetgo I2C Logic Level Converter](https://www.amazon.com/HiLetgo-Channels-Converter-Bi-Directional-3-3V-5V/dp/B07F7W91LC) $0.75 USD x 1
+* Blue LED x 1
+* [Akizuki BME280 Module](http://akizukidenshi.com/catalog/g/gK-09421/) $10 USD x 1
+* Push Switch x 1
+* R 10kOhm x 2
+* C 100pF x 2
+* C 0.1uF x 1
 
 ## Connections
 
