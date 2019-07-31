@@ -3,9 +3,13 @@
 
 A Python 3 port from MicroPython library for the quad 7-segment LED display modules based on the TM1637 LED driver, implemented on Raspberry Pi.
 
-For example, the [Grove - 4 Digit Display module](http://wiki.seeed.cc/Grove-4-Digit_Display/)
+For example, the [OptoSupply - 4 Digit Display](http://akizukidenshi.com/catalog/g/gI-09971/)
 
-![demo](docs/raspberry_tm1637.gif)
+![demo](docs/raspberry_tm1637+osl40391.gif)
+
+For another example, the [Grove - 4 Digit Display module](http://wiki.seeed.cc/Grove-4-Digit_Display/)
+
+![demo](docs/raspberry_tm1637+osl40391.gif)
 
 ## Examples
 
@@ -13,7 +17,8 @@ For example, the [Grove - 4 Digit Display module](http://wiki.seeed.cc/Grove-4-D
 
 ```python
 import tm1637
-tm = tm1637.TM1637(clk=5, dio=4)
+# tm = tm1637.TM1637(clk=5, dio=4)
+tm = tm1637.TM1637_OSL40391(clk=5, dio=4)
 
 # all LEDS on "88:88"
 tm.write([127, 255, 127, 127])
@@ -40,8 +45,11 @@ tm.numbers(12, 59)
 # show "-123"
 tm.number(-123)
 
-# show temperature '24*C'
-tm.temperature(24)
+# show temperature '24.5*C'
+tm.temperature(24.5)
+
+# show percentage '56.7%'
+tm.percent(56.7)
 ```
 
 For more detailed examples, see [tm1637_test.py](tm1637_test.py)
@@ -125,7 +133,7 @@ encode_digit(digit)
 
 Convert a string to a list of segments.
 ```python
-encode_string(string)
+encode_string(string, colon=False, deg=False)
 ```
 
 Convert a single character to a segment.
@@ -140,34 +148,45 @@ hex(val)
 
 Display a number -999 through 9999, right aligned.
 ```python
-number(num)
+number(num, colon=True, deg=False)
 ```
 
 Display 2 independent numbers on either side of the (optional) colon, with leading zeros.
 ```python
-numbers(num1, num2, colon=True)
+numbers(num1, num2, colon=True, deg=False)
 ```
 
-Display a temperature -9 through 99 followed by degrees C.
+Display a temperature -9.9 through 99.9 followed by degrees C.
 ```python
 temperature(num)
+```
+
+Display a percentage 0 through 100 followed by a mimic '%'.
+```python
+percent(num)
 ```
 
 Show a string on the display.
 Shorthand for `write(encode_string())`.
 Limited to first 4 characters.
 ```python
-show(string, colon=False)
+show(string, colon=False, deg=False)
 ```
 
 Display a string on the display, scrolling from the right to left, speed adjustable.
-String starts off-screen and scrolls until off-screen at 4 FPS by default.
+String starts off-screen and scrolls until off-screen at 4 FPS by default. If preset is set 0, the string starts on-screen from the left side.
 ```python
-scroll(string, delay=250)
+scroll(string, delay=250, preset=4)
+```
+
+Scan a pressed key. This method returns a pressed key code, if pressed, otherwise, returns 0.
+```python
+scan_key()
 ```
 
 ## Parts
 
+* [OptoSupply 4 Digit Display](http://www.optosupply.com/uppic/2016823196951.pdf) $2 USD
 * [Grove 4 Digit Display](https://www.seeedstudio.com/grove-4digital-display-p-1198.html) $5.90 USD
 * [Grove Male Jumper Cable](https://www.seeedstudio.com/Grove-4-pin-Male-Jumper-to-Grove-4-pin-Conversion-Cable-%285-PCs-per-Pack%29-p-1565.html) $2.90 USD
 
@@ -175,10 +194,13 @@ scroll(string, delay=250)
 
 Raspberry Pi  | 4 Digit Display
 ------------- | ---------------
-GPIO5         | CLK
-GPIO4         | DIO
-3V3 (or 5V)   | VCC
+GPIO24        | CLK
+GPIO23        | DIO
+5V (or 3V3)   | VCC
 GND           | GND
+ :            |  :
+ :            |  :
+   (see docs/clock-schematic.png for more details.)
 
 ## Links
 

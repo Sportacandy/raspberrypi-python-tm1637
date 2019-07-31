@@ -37,6 +37,7 @@ wiringPiSetupGpio()
 TM1637_CMD1 = 0x40 # 0x40 data command
 TM1637_CMD2 = 0xc0 # 0xC0 address command
 TM1637_CMD3 = 0x80 # 0x80 display control command
+TM1637_CMD_KEYSCAN = 0x42 # 0x42 key scan command
 TM1637_DSP_ON = 0x08 # 0x08 display on
 TM1637_DELAY = 0.00000001 # 10us delay between clk/dio pulses
 TM1637_MSB = 0x80  # msb is the decimal point or the colon depending on your display
@@ -233,3 +234,105 @@ class TM1637Decimal(TM1637):
             segments[j] = self.encode_char(string[i])
             j += 1
         return segments
+
+    
+class TM1637_OSL40391(TM1637Decimal):
+    """
+    """
+
+    def encode_string(self, string, colon=False, deg=False):
+        """Convert an up to 4 character length string containing 0-9, a-z,
+        space, dash, star to an array of segments, matching the length of the
+        source string."""
+        segments = TM1637Decimal.encode_string(self, string)
+        #segments = bytearray(len(string))
+        #for i in range(len(string)):
+        #    segments[i] = self.encode_char(string[i])
+        npaddings = 4 - len(segments)
+        for i in range(npaddings):
+            segments.append(_SEGMENTS[36]) # blank
+        opts = 0
+        if colon:
+            opts |= 3
+        if deg:
+            opts |= 4
+        segments.append(opts)
+        return segments
+
+    def _wait_ack(self):
+        pinMode(self.clk, GPIO.OUTPUT) # CLK --> LOW
+        sleep(TM1637_DELAY)
+        pinMode(self.clk, GPIO.INPUT) # CLK --> HIGH
+        sleep(TM1637_DELAY)
+        pinMode(self.clk, GPIO.OUTPUT) # CLK --> LOW
+
+    def number(self, num, colon=False, deg=False):
+        """Display a numeric value -999 through 9999, right aligned."""
+        # limit to range -999 to 9999
+        num = max(-999, min(num, 9999))
+        string = '{0: >4d}'.format(num)
+        self.write(self.encode_string(string, colon, deg))
+
+    def numbers(self, num1, num2, colon=True, deg=False):
+        """Display two numeric values -9 through 99, with leading zeros
+        and separated by a colon."""
+        num1 = max(-9, min(num1, 99))
+        num2 = max(-9, min(num2, 99))
+        segments = self.encode_string('{0:0>2d}{1:0>2d}'.format(num1, num2), colon, deg)
+        self.write(segments)
+
+    def temperature(self, num):
+        if num < -9.9:
+            self.show('lo') # low
+        elif num > 99.9:
+            self.show('hi') # high
+        else:
+            string = '{0: >3d}'.format(int(num * 10))
+            segments = self.encode_string(string)
+            segments[1] |= 0x80 # dot on
+            self.write(segments)
+        self.write([_SEGMENTS[12], 4], 3) # degree C
+
+    def percent(self, num):
+        string = '100' if num >= 100 else '{0: >3d}'.format(int(num * 10))
+        segments = self.encode_string(string)
+        if num < 100:
+            segments[1] |= 0x80 # dot on
+        self.write(segments)
+        self.write([0xd2, 4], 3) # % (mimic "%")
+
+    def show(self, string, colon=False, deg=False):
+        segments = self.encode_string(string, colon, deg)
+        self.write(segments[:5])
+
+    def scroll(self, string, delay=250, preset=4):
+        self.write([0], 4) # turn colon/degree off.
+        segments = string if isinstance(string, list) else self.encode_string(string)
+        data = [0] * 8
+        data[preset:0] = list(segments)
+        for i in range(len(segments) + 5):
+            self.write(data[0+i:4+i])
+            sleep(delay / 1000)
+
+    def scan_key(self):
+        # scan key
+        self._start()
+        self._write_byte(TM1637_CMD_KEYSCAN)
+        pinMode(self.dio, GPIO.INPUT)
+
+        code = 0
+        for i in range(8):
+            code >>= 1
+            pinMode(self.clk, GPIO.OUTPUT) # CLK --> LOW
+            sleep(TM1637_DELAY)
+            pinMode(self.clk, GPIO.INPUT) # CLK --> HIGH
+            data = digitalRead(self.dio)
+            code |= 0x80 if data & 1 else 0x00
+            #print('data[' + str(i) + ']=' + str(data))
+            sleep(TM1637_DELAY)
+            
+        self._wait_ack()
+
+        self._stop()
+        return code
+        
